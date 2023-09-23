@@ -12,6 +12,7 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/gorilla/mux"
 )
@@ -27,6 +28,17 @@ type Routes []Route
 
 func NewRouter() *mux.Router {
 	router := mux.NewRouter().StrictSlash(true)
+	router.Use(func(h http.Handler) http.Handler {
+		// set correlation id if not present
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			correlationId := r.Header.Get("X-Correlation-Id")
+			if correlationId == "" {
+				correlationId = fmt.Sprintf("request-%d", time.Now().UnixNano())
+				r.Header.Set("X-Correlation-Id", correlationId)
+			}
+			h.ServeHTTP(w, r)
+		})
+	})
 	for _, route := range routes {
 		var handler http.Handler
 		handler = route.HandlerFunc
