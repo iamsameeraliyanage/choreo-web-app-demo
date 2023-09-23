@@ -6,13 +6,22 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/sirupsen/logrus"
 )
 
-const todoAPIURL = "http://localhost:8080" // Put your original Todo API URL here
+var todoAPIURL string
+
+func init() {
+	if os.Getenv("TODO_API_URL") != "" {
+		todoAPIURL = os.Getenv("TODO_API_URL")
+	} else {
+		todoAPIURL = "http://localhost:8080"
+	}
+}
 
 func extractUserIDFromJWT(tokenString string) (string, error) {
 	// Parse the token
