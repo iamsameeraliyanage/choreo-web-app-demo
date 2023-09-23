@@ -2,11 +2,14 @@ package main
 
 import (
 	"bytes"
+	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"io"
 	"log"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v5"
@@ -44,6 +47,42 @@ func extractUserIDFromJWT(tokenString string) (string, error) {
 	return "", fmt.Errorf("invalid jwt")
 }
 
+func extractUserIDFromJWT2(tokenString string) (string, error) {
+	base64UrlDecode := func(data string) ([]byte, error) {
+		// Add padding if necessary
+		padding := len(data) % 4
+		if padding > 0 {
+			data += strings.Repeat("=", 4-padding)
+		}
+
+		data = strings.ReplaceAll(data, "-", "+")
+		data = strings.ReplaceAll(data, "_", "/")
+		return base64.URLEncoding.DecodeString(data)
+	}
+
+	parts := strings.Split(tokenString, "=")
+	if len(parts) != 3 {
+		return "", fmt.Errorf("invalid jwt, failed to parse, found %d parts", len(parts))
+	}
+
+	payload, err := base64UrlDecode(parts[1])
+	if err != nil {
+		fmt.Println("Failed to decode payload:", err)
+		return "", fmt.Errorf("invalid jwt, failed to decode payload: %v", err)
+	}
+
+	var claims map[string]interface{}
+	if err := json.Unmarshal(payload, &claims); err != nil {
+		fmt.Println("Failed to unmarshal payload:", err)
+		return "", fmt.Errorf("invalid jwt, failed to unmarshal payload: %v", err)
+	}
+	sub := claims["sub"].(string)
+	if sub == "" {
+		return "", fmt.Errorf("invalid jwt, `sub` claim not found or not a string: %v", claims["sub"])
+	}
+	return sub, nil
+}
+
 func ProxyHandler(c *fiber.Ctx) error {
 	requestId := c.Get("x-request-id", "")
 	if requestId == "" {
@@ -57,7 +96,7 @@ func ProxyHandler(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "missing x-jwt-assertion header"})
 	}
 
-	userID, err := extractUserIDFromJWT(jwt)
+	userID, err := extractUserIDFromJWT2(jwt)
 	if err != nil {
 		logger.WithField("jwt", jwt).WithError(err).Error("Error extracting user ID from JWT")
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid jwt"})
