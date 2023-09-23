@@ -12,7 +12,6 @@ import (
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 )
@@ -31,23 +30,6 @@ func init() {
 }
 
 func extractUserIDFromJWT(tokenString string) (string, error) {
-	// Parse the token
-	token, _, err := new(jwt.Parser).ParseUnverified(tokenString, jwt.MapClaims{})
-	if err != nil {
-		return "", fmt.Errorf("invalid jwt, failed to parse [%v]", err)
-	}
-	// Assert the token claims to jwt.MapClaims
-	if claims, ok := token.Claims.(jwt.MapClaims); ok {
-		if sub, ok := claims["sub"].(string); ok {
-			return sub, nil
-		} else {
-			return "", fmt.Errorf("invalid jwt, `sub` claim not found or not a string: %v", claims["sub"])
-		}
-	}
-	return "", fmt.Errorf("invalid jwt")
-}
-
-func extractUserIDFromJWT2(tokenString string) (string, error) {
 	base64UrlDecode := func(data string) ([]byte, error) {
 		// Add padding if necessary
 		padding := len(data) % 4
@@ -96,7 +78,7 @@ func ProxyHandler(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "missing x-jwt-assertion header"})
 	}
 
-	userID, err := extractUserIDFromJWT2(jwt)
+	userID, err := extractUserIDFromJWT(jwt)
 	if err != nil {
 		logger.WithField("jwt", jwt).WithError(err).Error("Error extracting user ID from JWT")
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid jwt"})
