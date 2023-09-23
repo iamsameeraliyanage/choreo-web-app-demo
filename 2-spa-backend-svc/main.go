@@ -60,7 +60,7 @@ func extractUserIDFromJWT2(tokenString string) (string, error) {
 		return base64.URLEncoding.DecodeString(data)
 	}
 
-	parts := strings.Split(tokenString, "=")
+	parts := strings.Split(tokenString, ".")
 	if len(parts) != 3 {
 		return "", fmt.Errorf("invalid jwt, failed to parse, found %d parts", len(parts))
 	}
