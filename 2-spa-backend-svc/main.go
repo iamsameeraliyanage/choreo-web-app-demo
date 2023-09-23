@@ -18,8 +18,10 @@ var todoAPIURL string
 func init() {
 	if os.Getenv("TODO_API_URL") != "" {
 		todoAPIURL = os.Getenv("TODO_API_URL")
+		logrus.WithField("todo_api_url", todoAPIURL).Info("Using TODO_API_URL environment variable")
 	} else {
 		todoAPIURL = "http://localhost:8080"
+		logrus.WithField("todo_api_url", todoAPIURL).Info("Using default TODO_API_URL")
 	}
 }
 
@@ -41,6 +43,7 @@ func extractUserIDFromJWT(tokenString string) (string, error) {
 }
 
 func ProxyHandler(c *fiber.Ctx) error {
+	logrus.WithField("path", c.Path()).Info("Proxying request to Todo API")
 	jwt := c.Get("x-jwt-assertion", "")
 	if jwt == "" {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "missing x-jwt-assertion header"})
