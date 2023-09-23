@@ -12,8 +12,8 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
-	"time"
 
+	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 )
 
@@ -33,7 +33,8 @@ func NewRouter() *mux.Router {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			correlationId := r.Header.Get("X-Correlation-Id")
 			if correlationId == "" {
-				correlationId = fmt.Sprintf("request-%d", time.Now().UnixNano())
+				id, _ := uuid.NewRandom()
+				correlationId = fmt.Sprintf("todosvc-%s", id.String())
 				r.Header.Set("X-Correlation-Id", correlationId)
 			}
 			h.ServeHTTP(w, r)

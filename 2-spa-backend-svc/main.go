@@ -10,6 +10,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 )
 
@@ -43,7 +44,13 @@ func extractUserIDFromJWT(tokenString string) (string, error) {
 }
 
 func ProxyHandler(c *fiber.Ctx) error {
-	logrus.WithField("path", c.Path()).Info("Proxying request to Todo API")
+	requestId := c.Get("x-request-id", "")
+	if requestId == "" {
+		id, _ := uuid.NewRandom()
+		requestId = id.String()
+	}
+	logger := logrus.WithField("request_id", requestId)
+	logger.WithField("path", c.Path()).Info("Proxying request to Todo API")
 	jwt := c.Get("x-jwt-assertion", "")
 	if jwt == "" {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "missing x-jwt-assertion header"})
@@ -51,7 +58,7 @@ func ProxyHandler(c *fiber.Ctx) error {
 
 	userID, err := extractUserIDFromJWT(jwt)
 	if err != nil {
-		logrus.WithError(err).Error("Error extracting user ID from JWT")
+		logger.WithField("jwt", jwt).WithError(err).Error("Error extracting user ID from JWT")
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid jwt"})
 	}
 
@@ -63,6 +70,7 @@ func ProxyHandler(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
+	req.Header.Set("x-correlation-id", requestId)
 
 	// Make the request to the original Todo API
 	client := &http.Client{}
