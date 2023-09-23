@@ -24,6 +24,7 @@ func init() {
 		todoAPIURL = "http://localhost:8080"
 		logrus.WithField("todo_api_url", todoAPIURL).Info("Using default TODO_API_URL")
 	}
+	logrus.SetFormatter(&logrus.JSONFormatter{})
 }
 
 func extractUserIDFromJWT(tokenString string) (string, error) {
