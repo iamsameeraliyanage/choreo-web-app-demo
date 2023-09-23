@@ -1,3 +1,6 @@
 go 1.21.1
 
-use ./1-todo-entity-svc
+use (
+	./1-todo-entity-svc
+	./2-spa-backend-svc
+)
