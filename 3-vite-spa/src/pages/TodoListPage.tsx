@@ -1,11 +1,12 @@
 import { Box, Button, List, ListItem, TextField } from "@mui/material";
 import { useGetTodos } from "../apis/todo_queries";
 import { useCreateTodo } from "../apis/todo_mutations";
-import { useState } from "react";
+import { useReducer, useState } from "react";
 import { Link } from "react-router-dom";
 
 export function TodoListPage() {
   const todosQuery = useGetTodos();
+  const [formKey, resetForm] = useReducer((x) => x + 1, 0);
   if (todosQuery.isLoading) {
     return <p>Loading...</p>;
   }
@@ -14,7 +15,7 @@ export function TodoListPage() {
   }
   return (
     <Box>
-      <TodoAddForm />
+      <TodoAddForm key={formKey} onAdd={resetForm} />
       <h1>Pending items</h1>
       {todosQuery.isSuccess && todosQuery.data?.length > 0 && (
         <List>
@@ -36,8 +37,8 @@ export function TodoListPage() {
   );
 }
 
-function TodoAddForm() {
-  const addTodo = useCreateTodo();
+function TodoAddForm({ onAdd }: { onAdd: () => void }) {
+  const addTodo = useCreateTodo(onAdd);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   return (

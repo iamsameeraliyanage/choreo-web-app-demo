@@ -7,7 +7,7 @@ import {
 } from "./todos";
 import { useAuthContext } from "@asgardeo/auth-react";
 
-export function useCreateTodo() {
+export function useCreateTodo(onSuccess: () => void) {
   const queryClient = useQueryClient();
   const ctx = useAuthContext();
   return useMutation({
@@ -17,6 +17,7 @@ export function useCreateTodo() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries("todos");
+      onSuccess();
     },
   });
 }

@@ -17,7 +17,7 @@ import (
 )
 
 var todoAPIURL string
-var authHeaderFunc func(c *fiber.Ctx) string
+var authHeader string
 
 func init() {
 	if os.Getenv("TODO_API_URL") != "" {
@@ -27,17 +27,10 @@ func init() {
 		todoAPIURL = "http://localhost:8080"
 		logrus.WithField("todo_api_url", todoAPIURL).Info("Using default TODO_API_URL")
 	}
-	if os.Getenv("AUTH_HEADER") != "" {
-		header := os.Getenv("AUTH_HEADER")
-		authHeaderFunc = func(c *fiber.Ctx) string {
-			return c.Get(header, "")
-		}
-		logrus.WithField("auth_header", authHeaderFunc(nil)).Info("Using AUTH_HEADER environment variable")
-	} else {
-		authHeaderFunc = func(c *fiber.Ctx) string {
-			return strings.ReplaceAll(c.Get("Authorization", ""), "Bearer ", "")
-		}
-		logrus.WithField("auth_header", "x-jwt-assertion").Info("Using default AUTH_HEADER")
+	authHeader = os.Getenv("AUTH_HEADER")
+	if authHeader == "" {
+		authHeader = "x-jwt-assertion"
+		logrus.WithField("auth_header", authHeader).Info("Using default AUTH_HEADER")
 	}
 	logrus.SetFormatter(&logrus.JSONFormatter{})
 }
@@ -86,7 +79,8 @@ func ProxyHandler(c *fiber.Ctx) error {
 	}
 	logger := logrus.WithField("request_id", requestId)
 	logger.WithField("path", c.Path()).Info("Proxying request to Todo API")
-	jwt := authHeaderFunc(c)
+	jwt := c.Get(authHeader, "")
+	jwt = strings.ReplaceAll(jwt, "Bearer ", "")
 	if jwt == "" {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "missing x-jwt-assertion header"})
 	}
