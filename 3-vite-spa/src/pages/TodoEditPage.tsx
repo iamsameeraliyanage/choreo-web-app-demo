@@ -3,7 +3,7 @@ import { useGetTodoById } from "../apis/todo_queries";
 import { TodoResponse } from "../apis/todos";
 import { useState } from "react";
 import { useUpdateTodo } from "../apis/todo_mutations";
-import { Box, Button, TextField } from "@mui/material";
+import { Alert, Box, Button, TextField } from "@mui/material";
 import OutletContainer from "../layout/OutletContainer";
 
 export function TodoEditPage() {
@@ -12,7 +12,9 @@ export function TodoEditPage() {
     const query = useGetTodoById(todoId);
     return (
         <OutletContainer title="Edit item" isLoading={query.isLoading}>
-            {query.isError && <p>Something went wrong</p>}
+            {query.isError && (
+                <Alert severity="error">Something went wrong</Alert>
+            )}
             {query.isSuccess && query.data && (
                 <TodoEditForm item={query.data} />
             )}
@@ -30,7 +32,9 @@ function TodoEditForm({ item }: { item: TodoResponse }) {
             <Box>
                 <h1>Add item</h1>
             </Box>
-            {updateMutation.isError && <p>Something went wrong</p>}
+            {updateMutation.isError && (
+                <Alert severity="error">Something went wrong</Alert>
+            )}
             <form
                 onSubmit={(e) => {
                     e.preventDefault();

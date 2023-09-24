@@ -20,7 +20,7 @@ function NotificationCard({
                 />
             </Box>
             <Box>
-                <Typography variant="h5">{title}</Typography>
+                <Typography variant="body1">{title}</Typography>
             </Box>
             <Box mt={2}>{description}</Box>
         </Box>
