@@ -60,6 +60,8 @@ export function TodoListPage() {
                             <List>
                                 {todosQuery.data.map((todo) => {
                                     const labelId = `checkbox-list-label-${todo.id}`;
+                                    const isItemChecked =
+                                        checked.indexOf(todo.id) !== -1;
                                     return (
                                         <ListItem
                                             key={todo.id}
@@ -103,11 +105,7 @@ export function TodoListPage() {
                                                 <ListItemIcon>
                                                     <Checkbox
                                                         edge="start"
-                                                        checked={
-                                                            checked.indexOf(
-                                                                todo.id
-                                                            ) !== -1
-                                                        }
+                                                        checked={isItemChecked}
                                                         tabIndex={-1}
                                                         disableRipple
                                                         inputProps={{
@@ -122,9 +120,21 @@ export function TodoListPage() {
                                                     secondary={todo.description}
                                                     primaryTypographyProps={{
                                                         variant: "body1",
+                                                        style: {
+                                                            textDecoration:
+                                                                isItemChecked
+                                                                    ? "line-through"
+                                                                    : "none",
+                                                        },
                                                     }}
                                                     secondaryTypographyProps={{
                                                         variant: "body2",
+                                                        style: {
+                                                            textDecoration:
+                                                                isItemChecked
+                                                                    ? "line-through"
+                                                                    : "none",
+                                                        },
                                                     }}
                                                 />
                                             </ListItemButton>
