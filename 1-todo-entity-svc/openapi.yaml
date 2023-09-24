@@ -14,14 +14,14 @@ paths:
           schema:
             type: integer
       responses:
-        '200':
+        "200":
           description: A list of todos
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/TodoResponse'
+                  $ref: "#/components/schemas/TodoResponse"
     post:
       summary: Create a new todo for a user
       parameters:
@@ -35,9 +35,9 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/TodoRequest'
+              $ref: "#/components/schemas/TodoRequest"
       responses:
-        '201':
+        "201":
           description: Todo created
   /users/{userId}/todos/{id}:
     get:
@@ -54,12 +54,12 @@ paths:
           schema:
             type: integer
       responses:
-        '200':
+        "200":
           description: Single todo
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/TodoResponse'
+                $ref: "#/components/schemas/TodoResponse"
     put:
       summary: Update a todo by ID for a user
       parameters:
@@ -78,9 +78,9 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/TodoRequest'
+              $ref: "#/components/schemas/TodoRequest"
       responses:
-        '200':
+        "200":
           description: Todo updated
     delete:
       summary: Delete a todo by ID for a user
@@ -96,7 +96,7 @@ paths:
           schema:
             type: integer
       responses:
-        '204':
+        "204":
           description: Todo deleted
 
 components:
@@ -112,6 +112,8 @@ components:
           type: string
         description:
           type: string
+        completed:
+          type: boolean
       required:
         - id
         - userId
@@ -124,5 +126,7 @@ components:
           type: string
         description:
           type: string
+        completed:
+          type: boolean
       required:
         - title
