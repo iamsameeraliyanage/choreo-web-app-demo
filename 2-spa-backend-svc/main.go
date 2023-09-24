@@ -8,6 +8,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"net/http/httputil"
 	"os"
 	"strings"
 
@@ -105,6 +106,9 @@ func ProxyHandler(c *fiber.Ctx) error {
 		q.Add(k, v)
 	}
 	req.URL.RawQuery = q.Encode()
+
+	v, _ := httputil.DumpRequest(req, true)
+	fmt.Printf("%s\n", v)
 
 	// Make the request to the original Todo API
 	client := &http.Client{}
