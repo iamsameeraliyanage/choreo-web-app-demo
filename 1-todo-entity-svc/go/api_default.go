@@ -54,10 +54,10 @@ func UsersUserIdTodosGet(w http.ResponseWriter, r *http.Request) {
 			userTodos = append(userTodos, todo)
 		}
 	}
-	if len(userTodos) == 0 {
-		userTodos = makeSampleTodos(userId)
-		todos = append(todos, userTodos...)
-	}
+	// if len(userTodos) == 0 {
+	// 	userTodos = makeSampleTodos(userId)
+	// 	todos = append(todos, userTodos...)
+	// }
 	// write the response
 	writeJSONResponse("UsersUserIdTodosGet", r, w, userTodos, http.StatusOK)
 }

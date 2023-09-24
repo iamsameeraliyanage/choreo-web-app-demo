@@ -1,13 +1,7 @@
 import { AuthContextInterface } from "@asgardeo/auth-react";
 import axios, { AxiosResponse } from "axios";
 
-declare global {
-  interface Window {
-    BACKEND_URL: string;
-  }
-}
-
-const BASE_URL = window.BACKEND_URL;
+const BASE_URL = window.config.todoApiUrl;
 
 type AuthCtx = AuthContextInterface;
 
