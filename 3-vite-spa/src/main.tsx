@@ -25,7 +25,7 @@ const authConfig = {
   signOutRedirectURL: window.config.auth.signOutRedirectURL,
   clientID: window.config.auth.clientID,
   baseUrl: window.config.auth.baseUrl,
-  scope: ["openid", "profile"],
+  scope: ["openid", "profile", "email"],
 };
 
 const client = new QueryClient();
