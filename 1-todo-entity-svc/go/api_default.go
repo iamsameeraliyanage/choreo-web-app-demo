@@ -139,6 +139,7 @@ func UsersUserIdTodosIdPut(w http.ResponseWriter, r *http.Request) {
 	}
 	todos[idx].Title = update.Title
 	todos[idx].Description = update.Description
+	todos[idx].Completed = update.Completed
 	// write the response
 	writeJSONResponse("UsersUserIdTodosIdPut", r, w, todos[idx], http.StatusOK)
 }
@@ -148,16 +149,19 @@ func UsersUserIdTodosPost(w http.ResponseWriter, r *http.Request) {
 	defer lock.Unlock()
 	// read the request data
 	userId := getUserId(r)
-	var todo TodoResponse
-	if err := json.NewDecoder(r.Body).Decode(&todo); err != nil {
+	var body TodoRequest
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 		logRequest(r, "UsersUserIdTodosPost", nil)
 		writeErrorResponse("UsersUserIdTodosPost", r, w, http.StatusBadRequest, "Invalid request")
 		return
 	}
-	logRequest(r, "UsersUserIdTodosPost", todo)
+	logRequest(r, "UsersUserIdTodosPost", body)
 	// process the request
+	todo := TodoResponse{}
 	todo.UserId = userId
 	todo.Id = int32(lastId + 1)
+	todo.Title = body.Title
+	todo.Description = body.Description
 	lastId++
 	todos = append(todos, todo)
 	// write the response

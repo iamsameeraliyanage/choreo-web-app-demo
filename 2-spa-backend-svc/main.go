@@ -8,6 +8,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"net/http/httputil"
 	"os"
 	"strings"
 
@@ -78,7 +79,7 @@ func ProxyHandler(c *fiber.Ctx) error {
 		requestId = id.String()
 	}
 	logger := logrus.WithField("request_id", requestId)
-	logger.WithField("path", c.Path()).Info("Proxying request to Todo API")
+	logger.WithField("path", c.Path()).WithField("method", c.Method()).Info("Proxying request to Todo API")
 	jwt := c.Get(authHeader, "")
 	jwt = strings.ReplaceAll(jwt, "Bearer ", "")
 	if jwt == "" {
@@ -100,6 +101,14 @@ func ProxyHandler(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 	req.Header.Set("x-correlation-id", requestId)
+	q := req.URL.Query()
+	for k, v := range c.Queries() {
+		q.Add(k, v)
+	}
+	req.URL.RawQuery = q.Encode()
+
+	v, _ := httputil.DumpRequest(req, true)
+	fmt.Printf("%s\n", v)
 
 	// Make the request to the original Todo API
 	client := &http.Client{}
@@ -118,7 +127,10 @@ func ProxyHandler(c *fiber.Ctx) error {
 }
 
 func main() {
-	app := fiber.New()
+	app := fiber.New(fiber.Config{
+		ReadBufferSize: 16 * 1024,
+		Immutable:      true,
+	})
 
 	// Setting up proxy routes
 	app.Get("/todos", ProxyHandler)

@@ -9,8 +9,9 @@
 package swagger
 
 type TodoRequest struct {
-
 	Title string `json:"title"`
 
 	Description string `json:"description,omitempty"`
+
+	Completed bool `json:"completed,omitempty"`
 }
