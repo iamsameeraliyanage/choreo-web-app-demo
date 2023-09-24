@@ -5,12 +5,15 @@ import OutletContainer from "../layout/OutletContainer";
 import NoDataImage from "../assets/no-data.svg";
 import NotificationCard from "../components/NotificationCard/NotificationCard";
 import { Button } from "@mui/material";
-import AddIcon from "@mui/icons-material/Add";
 
 export function Home() {
     const todosQuery = useGetTodos();
     return (
-        <OutletContainer title="Home" isLoading={todosQuery.isLoading}>
+        <OutletContainer
+            title="Home"
+            isLoading={todosQuery.isLoading}
+            breadcrumbs={[{ label: "Home", link: "/" }]}
+        >
             {todosQuery.isError && <p>Something went wrong</p>}
             {todosQuery.isSuccess && todosQuery.data?.length > 0 && (
                 <>
@@ -26,9 +29,7 @@ export function Home() {
                     title="You have no todo items."
                     description={
                         <Link to="/todos">
-                            <Button variant="outlined" startIcon={<AddIcon />}>
-                                Create new one
-                            </Button>
+                            <Button variant="outlined">Create new one</Button>
                         </Link>
                     }
                     imgUrl={NoDataImage}

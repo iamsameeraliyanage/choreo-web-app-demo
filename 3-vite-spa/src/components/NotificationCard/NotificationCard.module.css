@@ -6,12 +6,14 @@
 }
 .notificationImgWrap {
     width: 100%;
-    max-width: 300px;
+    max-width: 250px;
     position: relative;
-    margin-bottom: 24px;
+    margin-bottom: 48px;
+    margin-top: 48px;
 }
 .notificationCard {
     display: flex;
     justify-content: center;
     flex-direction: column;
+    align-items: center;
 }

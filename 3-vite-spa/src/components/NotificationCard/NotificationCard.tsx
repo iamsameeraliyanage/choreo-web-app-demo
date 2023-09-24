@@ -1,4 +1,4 @@
-import { Box } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import styles from "./NotificationCard.module.css";
 
 function NotificationCard({
@@ -19,8 +19,10 @@ function NotificationCard({
                     alt={title}
                 />
             </Box>
-            <Box>{title}</Box>
-            <Box>{description}</Box>
+            <Box>
+                <Typography variant="h5">{title}</Typography>
+            </Box>
+            <Box mt={2}>{description}</Box>
         </Box>
     );
 }
