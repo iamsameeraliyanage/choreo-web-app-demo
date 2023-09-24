@@ -4,9 +4,14 @@ import {
     Button,
     Card,
     CardContent,
+    Checkbox,
     Grid,
+    IconButton,
     List,
     ListItem,
+    ListItemButton,
+    ListItemIcon,
+    ListItemText,
     TextField,
 } from "@mui/material";
 import { useGetTodos } from "../apis/todo_queries";
@@ -14,14 +19,30 @@ import { useCreateTodo } from "../apis/todo_mutations";
 import { useReducer, useState } from "react";
 import { Link } from "react-router-dom";
 import OutletContainer from "../layout/OutletContainer";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 export function TodoListPage() {
     const todosQuery = useGetTodos();
     const [formKey, resetForm] = useReducer((x) => x + 1, 0);
 
+    const [checked, setChecked] = useState([0]);
     if (todosQuery.isError) {
         return <Alert severity="error">Something went wrong</Alert>;
     }
+
+    const handleToggle = (value: number) => () => {
+        const currentIndex = checked.indexOf(value);
+        const newChecked = [...checked];
+
+        if (currentIndex === -1) {
+            newChecked.push(value);
+        } else {
+            newChecked.splice(currentIndex, 1);
+        }
+
+        setChecked(newChecked);
+    };
     return (
         <OutletContainer
             title="To Do List"
@@ -33,17 +54,97 @@ export function TodoListPage() {
         >
             <TodoAddForm key={formKey} onAdd={resetForm} />
             {todosQuery.isSuccess && todosQuery.data?.length > 0 && (
-                <List>
-                    {todosQuery.data.map((todo) => (
-                        <ListItem key={todo.id}>
-                            {todo.title}
-                            {todo.description && ` - ${todo.description}`}
-                            <Link to={`/todos/${todo.id}`}>
-                                <Button variant="outlined">Edit</Button>
-                            </Link>
-                        </ListItem>
-                    ))}
-                </List>
+                <Box mt={3}>
+                    <Card variant="outlined">
+                        <CardContent>
+                            <List>
+                                {todosQuery.data.map((todo) => {
+                                    const labelId = `checkbox-list-label-${todo.id}`;
+                                    const isItemChecked =
+                                        checked.indexOf(todo.id) !== -1;
+                                    return (
+                                        <ListItem
+                                            key={todo.id}
+                                            disablePadding
+                                            secondaryAction={
+                                                <Box
+                                                    display="flex"
+                                                    alignItems="center"
+                                                    rowGap={3}
+                                                    columnGap={3}
+                                                >
+                                                    <Link
+                                                        to={`/todos/${todo.id}`}
+                                                    >
+                                                        <IconButton
+                                                            edge="end"
+                                                            aria-label="edit"
+                                                            color="primary"
+                                                        >
+                                                            <EditIcon />
+                                                        </IconButton>
+                                                    </Link>
+
+                                                    <IconButton
+                                                        edge="end"
+                                                        aria-label="delete"
+                                                        color="error"
+                                                    >
+                                                        <DeleteIcon />
+                                                    </IconButton>
+                                                </Box>
+                                            }
+                                        >
+                                            <ListItemButton
+                                                role={undefined}
+                                                onClick={handleToggle(todo.id)}
+                                                dense
+                                                disableRipple
+                                                disableTouchRipple
+                                            >
+                                                <ListItemIcon>
+                                                    <Checkbox
+                                                        edge="start"
+                                                        checked={isItemChecked}
+                                                        tabIndex={-1}
+                                                        disableRipple
+                                                        inputProps={{
+                                                            "aria-labelledby":
+                                                                labelId,
+                                                        }}
+                                                    />
+                                                </ListItemIcon>
+                                                <ListItemText
+                                                    id={labelId}
+                                                    primary={todo.title}
+                                                    secondary={todo.description}
+                                                    primaryTypographyProps={{
+                                                        variant: "body1",
+                                                        style: {
+                                                            textDecoration:
+                                                                isItemChecked
+                                                                    ? "line-through"
+                                                                    : "none",
+                                                        },
+                                                    }}
+                                                    secondaryTypographyProps={{
+                                                        variant: "body2",
+                                                        style: {
+                                                            textDecoration:
+                                                                isItemChecked
+                                                                    ? "line-through"
+                                                                    : "none",
+                                                        },
+                                                    }}
+                                                />
+                                            </ListItemButton>
+                                        </ListItem>
+                                    );
+                                })}
+                            </List>
+                        </CardContent>
+                    </Card>
+                </Box>
             )}
             {todosQuery.isSuccess && todosQuery.data?.length === 0 && (
                 <Alert severity="info">You have no pending items.</Alert>
