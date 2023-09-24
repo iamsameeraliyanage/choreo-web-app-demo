@@ -15,7 +15,7 @@ function OutletContainer({
     isLoading = false,
     breadcrumbs = [],
 }: {
-    title: string;
+    title?: string;
     children: React.ReactNode;
     isLoading?: boolean;
     breadcrumbs?: { label: string; link: string }[];
@@ -31,27 +31,30 @@ function OutletContainer({
                         alignItems="center"
                         justifyContent="space-between"
                     >
-                        <Typography variant="h4">{title}</Typography>
-                        <Breadcrumbs aria-label="breadcrumb">
-                            {breadcrumbs.map((breadcrumb, index) => (
-                                <>
-                                    {index < breadcrumbs.length - 1 ? (
-                                        <MUILink
-                                            component={Link}
-                                            underline="hover"
-                                            color="inherit"
-                                            to={breadcrumb.link}
-                                        >
-                                            {breadcrumb.label}
-                                        </MUILink>
-                                    ) : (
-                                        <Typography color="text.primary">
-                                            {breadcrumb.label}
-                                        </Typography>
-                                    )}
-                                </>
-                            ))}
-                        </Breadcrumbs>
+                        {title && <Typography variant="h4">{title}</Typography>}
+
+                        {breadcrumbs.length > 0 && (
+                            <Breadcrumbs aria-label="breadcrumb">
+                                {breadcrumbs.map((breadcrumb, index) => (
+                                    <>
+                                        {index < breadcrumbs.length - 1 ? (
+                                            <MUILink
+                                                component={Link}
+                                                underline="hover"
+                                                color="inherit"
+                                                to={breadcrumb.link}
+                                            >
+                                                {breadcrumb.label}
+                                            </MUILink>
+                                        ) : (
+                                            <Typography color="text.primary">
+                                                {breadcrumb.label}
+                                            </Typography>
+                                        )}
+                                    </>
+                                ))}
+                            </Breadcrumbs>
+                        )}
                     </Box>
                     <Box>{children}</Box>
                 </Container>
