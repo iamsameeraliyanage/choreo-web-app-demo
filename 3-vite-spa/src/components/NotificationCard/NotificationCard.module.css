@@ -1,0 +1,17 @@
+.notificationImg {
+    width: 100%;
+    height: "auto";
+    max-width: 100%;
+    display: block;
+}
+.notificationImgWrap {
+    width: 100%;
+    max-width: 300px;
+    position: relative;
+    margin-bottom: 24px;
+}
+.notificationCard {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+}
