@@ -15,7 +15,7 @@ type TodoResponse struct {
 
 	Title string `json:"title"`
 
-	Description string `json:"description,omitempty"`
+	Description string `json:"description"`
 
-	Completed bool `json:"completed,omitempty"`
+	Completed bool `json:"completed"`
 }
