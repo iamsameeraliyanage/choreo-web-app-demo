@@ -1,5 +1,7 @@
 import NextAuth, { AuthOptions } from "next-auth";
 
+// https://next-auth.js.org/getting-started/rest-api
+// https://next-auth.js.org/configuration/options
 export const authOptions: AuthOptions = {
   providers: [
     {
@@ -36,6 +38,7 @@ export const authOptions: AuthOptions = {
   callbacks: {
     jwt({ token, account, user }) {
       if (account) {
+        // Persist the OAuth access_token to the token right after signin
         token.accessToken = account.access_token;
         token.id = user?.id;
       }
@@ -43,10 +46,15 @@ export const authOptions: AuthOptions = {
     },
     session({ session, token }) {
       if (session.user) {
+        // Send properties to the client, like an access_token from a provider.
         (session.user as any).id = token.sub;
       }
       return session;
     },
   },
+  theme: {
+    colorScheme: "light", // "auto" | "dark" | "light"
+  },
+  debug: true,
 };
 export default NextAuth(authOptions);

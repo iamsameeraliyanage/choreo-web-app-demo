@@ -1,12 +1,14 @@
 import Layout from "@/components/Layouts";
+import AppLayout from "@/layout/Layout";
 import { TodoResponse, getTodoByIdForUser } from "@/svc/backend.client";
 import { redirectToLogin } from "@/utils/redirect";
 import { getNextAuthServerSession } from "@/utils/session";
-import { Box, Button, TextField } from "@mui/material";
+import { Alert, Box, Button, TextField } from "@mui/material";
 import axios from "axios";
-import { GetServerSideProps } from "next";
+import { GetServerSideProps, GetServerSidePropsContext } from "next";
 import { useRouter } from "next/router";
-import { useState } from "react";
+import { todo } from "node:test";
+import { FormEvent, useState } from "react";
 
 type TodosItemPageProps =
   | {
@@ -20,7 +22,9 @@ type TodosItemPageProps =
       error: "not-found" | "internal-error";
     };
 
-export const getServerSideProps = (async (context: any) => {
+export const getServerSideProps = (async (
+  context: GetServerSidePropsContext<any, any>
+) => {
   let session;
   try {
     session = await getNextAuthServerSession(context);
@@ -74,41 +78,56 @@ function TodoDetailPage(props: TodosItemPageProps) {
   if (props.error === "not-found") {
     return (
       <Layout>
-        <h1>No todo item available with id {props.itemIdParam}</h1>
+        <Alert>No todo item available with id {props.itemIdParam}</Alert>
       </Layout>
     );
   }
   if (props.error === "internal-error") {
     return (
       <Layout>
-        <h1>Something went wrong</h1>
+        <Alert>Something went wrong</Alert>
       </Layout>
     );
   }
   const todo = props.todo!;
   return (
-    <Layout>
+    <AppLayout>
       <h1>Todo Detail for ID: {todo.id}</h1>
       <TodoEditForm item={todo} />
-    </Layout>
+    </AppLayout>
   );
 }
 
 export default TodoDetailPage;
 
 function TodoEditForm({ item }: { item: TodoResponse }) {
+  const router = useRouter();
   const [title, setTitle] = useState(item.title);
   const [description, setDescription] = useState(item.description);
+  const [serverError, setServerError] = useState(false);
+  const handleSubmit = async (event: FormEvent) => {
+    event.preventDefault();
+    const response = await fetch(`/api/todos/${item.id}`, {
+      method: "PUT",
+      body: JSON.stringify({ title, description }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (response.ok) {
+      router.push("/todos");
+    } else {
+      setServerError(true);
+    }
+  };
   return (
     <Box>
       <Box>
-        <h1>Add item</h1>
+        {serverError && <Alert severity="error">Something went wrong</Alert>}
+        <h1>Edit item</h1>
       </Box>
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-        }}
-      >
+      <form onSubmit={handleSubmit}>
         <TextField
           id="todo-add-title"
           label="Outlined"
@@ -124,7 +143,7 @@ function TodoEditForm({ item }: { item: TodoResponse }) {
           value={description}
           onChange={(e) => setDescription(e.target.value)}
         />
-        <Button onClick={() => {}} type="button">
+        <Button onClick={() => router.push("/todos")} type="button">
           Go to list
         </Button>
         <Button disabled={title.length == 0} type="submit">

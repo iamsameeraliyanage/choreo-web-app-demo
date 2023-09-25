@@ -7,11 +7,13 @@ export interface TodoResponse {
   userId: string;
   title: string;
   description: string;
+  completed: boolean;
 }
 
 export interface TodoRequest {
   title: string;
   description: string;
+  completed: boolean;
 }
 
 // List all todos for a user
